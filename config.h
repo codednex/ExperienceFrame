@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <iostream>
+#include <windows.h>
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
@@ -16,45 +16,54 @@ struct AppConfig {
     bool bypassEnabled = false;
 };
 
-// Wildcard matching
+// Formatuje URL: jeśli to nie www, zamienia na ścieżkę absolutną file:///
+std::wstring GetFormattedUrl(std::string target) {
+    std::string finalUrl = target;
+    
+    // Sprawdzenie czy to nie jest adres internetowy
+    if (target.find("http://") != 0 && target.find("https://") != 0) {
+        char fullPath[MAX_PATH];
+        if (target.find("./") == 0) {
+            GetFullPathNameA(target.c_str(), MAX_PATH, fullPath, NULL);
+            finalUrl = "file:///" + std::string(fullPath);
+        }
+    }
+
+    int len = MultiByteToWideChar(CP_UTF8, 0, finalUrl.c_str(), -1, NULL, 0);
+    std::wstring wstr(len, 0);
+    MultiByteToWideChar(CP_UTF8, 0, finalUrl.c_str(), -1, &wstr[0], len);
+    return wstr;
+}
+
 bool IsUrlBlocked(std::string pattern, std::string url) {
     if (pattern == "*") return true;
-    if (pattern.find("*.") == 0) {
-        std::string dom = pattern.substr(2);
-        return url.length() >= dom.length() && url.compare(url.length()-dom.length(), dom.length(), dom) == 0;
-    }
     return url.find(pattern) != std::string::npos;
 }
 
 AppConfig LoadSettings() {
     AppConfig cfg;
-    const std::string filename = "config.json";
-    
-    std::ifstream file(filename);
+    std::ifstream file("config.json");
     if (!file.is_open()) {
-        // Generate default config.json if not exists
         json j;
         j["url"] = "./example.html";
         j["distributedMode"] = 0;
-        j["lockedURL"] = json::array({"*.doubleclick.net", "*.ads.com"});
-        
-        std::ofstream out(filename);
+        j["lockedURL"] = {"*.doubleclick.net"};
+        std::ofstream out("config.json");
         out << j.dump(4);
-        out.close();
         return cfg;
     }
-
     json data;
-    file >> data;
-    cfg.url = data.value("url", "./example.html");
-    cfg.distributedMode = data.value("distributedMode", 0);
-    cfg.lockedURL = data.value("lockedURL", std::vector<std::string>{});
-
-    if (!cfg.url.empty() && cfg.url[0] == '!') {
-        cfg.bypassEnabled = true;
-        cfg.url.erase(0, 1);
-    }
+    try {
+        file >> data;
+        cfg.url = data.value("url", "./example.html");
+        cfg.distributedMode = data.value("distributedMode", 0);
+        cfg.lockedURL = data.value("lockedURL", std::vector<std::string>{});
+        
+        if (!cfg.url.empty() && cfg.url[0] == '!') {
+            cfg.bypassEnabled = true;
+            cfg.url.erase(0, 1);
+        }
+    } catch(...) {}
     return cfg;
 }
-
 #endif
