@@ -1,0 +1,16 @@
+# Executables
+*.exe
+*.dll
+*.o
+*.obj
+
+# WebView2 Runtime Data
+*.exe.WebView2/
+EBWebView/
+
+# IDE folders
+.vscode/
+.idea/
+
+# Configs that might contain sensitive URLs
+# config.json
