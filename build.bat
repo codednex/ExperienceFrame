@@ -1,40 +1,17 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
+echo [*] Zamykanie starych procesow...
+taskkill /f /im ExperienceFrame.exe >nul 2>&1
 
-:: Konfiguracja ścieżek
-set "PROJ_DIR=%~dp0"
-cd /d "%PROJ_DIR%"
-set "PATH=%PROJ_DIR%mingw64\bin;%PATH%"
-set "OUT_EXE=ExperienceFrame.exe"
-set "TEMP_EXE=ef_runtime_tmp.exe"
+set "PATH=%~dp0mingw64\bin;%PATH%"
 
-:: Sprawdzenie trybu
-if "%~1"=="--build-exe" goto :compile_final
+echo [*] Kompilacja...
+g++.exe main.cpp -o ExperienceFrame.exe -I. -L. -lWebView2Loader -lole32 -luuid -lgdi32 -luser32 -mwindows -std=c++17
 
-:compile_tmp
-echo [*] Kompilacja tymczasowa (On-the-fly)...
-if exist "%TEMP_EXE%" del "%TEMP_EXE%"
-g++.exe main.cpp -o %TEMP_EXE% -I. -L. -lWebView2Loader -lole32 -luuid -mwindows -std=c++17
-if not exist "%TEMP_EXE%" goto :error
-echo [OK] Uruchamianie...
-start /wait %TEMP_EXE%
-del %TEMP_EXE%
-goto :end
-
-:compile_final
-echo [*] Kompilacja finalna do %OUT_EXE%...
-if exist "%OUT_EXE%" del "%OUT_EXE%"
-g++.exe main.cpp -o %OUT_EXE% -I. -L. -lWebView2Loader -lole32 -luuid -mwindows -std=c++17
-if not exist "%OUT_EXE%" goto :error
-echo [OK] Plik %OUT_EXE% gotowy.
-goto :end
-
-:error
-echo.
-echo [X] BLAD: Kompilacja nie powiodla sie.
-echo Sprawdz czy g++ wyswietlil bledy powyzej.
-pause
-exit /b 1
-
-:end
-echo Gotowe.
+if exist ExperienceFrame.exe (
+    echo [OK] Uruchamianie...
+    start ExperienceFrame.exe
+) else (
+    echo [X] Blad kompilacji!
+    pause
+)

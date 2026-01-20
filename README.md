@@ -1,12 +1,25 @@
-# ExperienceFrame
+# Experience Frame
 
-Minimalistic web-view window for Windows (C++). No address bar, no tabs, just content.
+A lightweight and efficient system window frame built using **Microsoft Edge WebView2** and C++ WinAPI. It is designed to render modern web interfaces as native Windows applications with full system integration.
 
-## Configuration (config.json)
-- `url`: The target website or local file (use `!` prefix to bypass filters).
-- `distributedMode`: Set to `1` to disable dev shortcuts.
-- `lockedURL`: List of patterns to block (supports `*.domain.com` and `domain.com/*`).
+## Key Features
+* **WebView2 Integration**: High-performance rendering using the Chromium engine.
+* **Unsafe SSL Support**: Optional `allowUnsafe` flag to bypass certificate errors for local development.
+* **Static Window Title**: Hardcoded window title (set to **PLOKOLP**) for consistent branding.
+* **Process Management**: Build script automatically terminates existing instances to ensure successful compilation.
+* **Modular Design**: Native support for **Files**, **PiLink**, and **Login/Register** modules.
 
-## Build
-Compile using MinGW or GCC with WebView2 SDK:
-`g++ main.cpp -o ExperienceFrame.exe -I./ -L./ -lWebView2Loader -mwindows`
+## Requirements
+* **Compiler**: MinGW-w64 (GCC 15.2.0 or newer).
+* **Runtime**: Microsoft Edge WebView2 Runtime.
+* **Libraries**: `WebView2Loader.dll`, `ole32`, `uuid`, `nlohmann_json`.
+
+## Configuration (`config.json`)
+The application is controlled by a JSON file located in the root directory:
+
+```json
+{
+    "url": "./index.html",
+    "allowUnsafe": 1,
+    "defaultStrength": 1
+}
