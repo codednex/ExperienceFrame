@@ -5,7 +5,7 @@ A lightweight and efficient system window frame built using **Microsoft Edge Web
 ## Key Features
 * **WebView2 Integration**: High-performance rendering using the Chromium engine.
 * **Unsafe SSL Support**: Optional `allowUnsafe` flag to bypass certificate errors for local development.
-* **Static Window Title**: Hardcoded window title (set to **PLOKOLP**) for consistent branding.
+* **Window Title**: You can change the window title in the Main .cpp file.
 * **Process Management**: Build script automatically terminates existing instances to ensure successful compilation.
 * **Modular Design**: Native support for **Files**, **PiLink**, and **Login/Register** modules.
 
